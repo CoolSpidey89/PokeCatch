@@ -6,7 +6,7 @@ from shivu import application, top_global_groups_collection, pm_users, OWNER_ID
 async def broadcast(update: Update, context: CallbackContext) -> None:
     
     if update.effective_user.id != OWNER_ID:
-        await update.message.reply_text("You are not authorized to use this command.")
+        await update.message.reply_text("Shut Up, You are not authorized to use this command.")
         return
 
     message_to_broadcast = update.message.reply_to_message
