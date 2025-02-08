@@ -1,8 +1,8 @@
 from pymongo import ReturnDocument
-from pyrogram.enums import ChatMemberStatus
+from hydrogram.enums import ChatMemberStatus
 from shivu import user_totals_collection, shivuu, sudo_users, OWNER_ID  
-from pyrogram import Client, filters
-from pyrogram.types import Message
+from hydrogram import Client, filters
+from hydrogram.types import Message
 
 ADMINS = [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER]
 
