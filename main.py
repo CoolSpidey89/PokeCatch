@@ -53,44 +53,28 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.effective_chat.id)
     user_id = update.effective_user.id
 
+    # Initialize lock for group if not present
     if chat_id not in locks:
         locks[chat_id] = asyncio.Lock()
     lock = locks[chat_id]
 
     async with lock:
-        
-        chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
-        if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 100)
-        else:
-            message_frequency = 100
+        # ✅ Fetch the latest droptime from MongoDB
+        chat_data = await user_totals_collection.find_one({'chat_id': chat_id})
+        message_frequency = chat_data.get("message_frequency", 100) if chat_data else 100
 
-        
-        if chat_id in last_user and last_user[chat_id]['user_id'] == user_id:
-            last_user[chat_id]['count'] += 1
-            if last_user[chat_id]['count'] >= 10:
-            
-                if user_id in warned_users and time.time() - warned_users[user_id] < 600:
-                    return
-                else:
-                    
-                    await update.message.reply_text(f"⚠️ Don't Spam Idiot {update.effective_user.first_name}...\nYour Messages Will be ignored for 10 Minutes, Now sit Silently...")
-                    warned_users[user_id] = time.time()
-                    return
-        else:
-            last_user[chat_id] = {'user_id': user_id, 'count': 1}
+        # ✅ Debugging log (AFTER fetching from DB)
+        current_count = message_counts.get(chat_id, 0)
+        print(f"🔍 [DEBUG] Group: {chat_id} | Messages: {current_count} | Drop at: {message_frequency}")
 
-    
-        if chat_id in message_counts:
-            message_counts[chat_id] += 1
-        else:
-            message_counts[chat_id] = 1
+        # ✅ Count messages for this group
+        message_counts[chat_id] = current_count + 1
 
-    
-        if message_counts[chat_id] % message_frequency == 0:
+        # ✅ If message count reaches the threshold, drop a character
+        if message_counts[chat_id] >= message_frequency:
+            print(f"🟢 [DEBUG] Triggering send_image() in {chat_id}")
             await send_image(update, context)
-            
-            message_counts[chat_id] = 0
+            message_counts[chat_id] = 0  # Reset counter
             
 async def send_image(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
