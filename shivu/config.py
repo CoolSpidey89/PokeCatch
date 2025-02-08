@@ -7,7 +7,7 @@ class Config(object):
     GROUP_ID = -1002360912514
     TOKEN = "7602328361:AAGW6LvxM3Pp62HcAUIJULSrpK8dKXPTxio"
     mongo_url = "mongodb+srv://fireraider89:oFFjJl1nVeik6fqD@cluster0.0oqnf.mongodb.net/"
-    PHOTO_URL = ["http://ibb.co/931yv1pj"]
+    PHOTO_URL = ["http://ibb.co/V0cRY5Tj"]
     SUPPORT_CHAT = "Pokecollect"
     UPDATE_CHAT = "Pokecollect"
     BOT_USERNAME = "PokeCollectBot"
