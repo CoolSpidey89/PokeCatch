@@ -248,3 +248,15 @@ if __name__ == "__main__":
     LOGGER.info("Bot started")
     main()
 
+app = Flask(name)
+
+@app.route('/')
+def health_check():
+    return "OK", 200
+
+def run_health_check():
+    app.run(host="0.0.0.0", port=8000, debug=False, use_reloader=False)
+
+if _name_ == "_main_":
+    # Start Flask health check in a separate thread
+    threading.Thread(target=run_health_check, daemon=True).start()
