@@ -16,7 +16,7 @@ from shivu import collection, top_global_groups_collection, group_user_totals_co
 from shivu import application, SUPPORT_CHAT, UPDATE_CHAT, db, LOGGER
 from shivu.modules import ALL_MODULES
 
-app = Flask(name)
+app = Flask(__name__)
 
 @app.route('/')
 def health_check():
