@@ -1,5 +1,5 @@
-from pyrogram import filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from hydrogram import filters
+from hydrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from shivu import user_collection, shivuu
 
