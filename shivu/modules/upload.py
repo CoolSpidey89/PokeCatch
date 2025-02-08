@@ -6,9 +6,9 @@ from telegram.ext import CommandHandler, CallbackContext
 
 from shivu import application, sudo_users, collection, db, CHARA_CHANNEL_ID, SUPPORT_CHAT
 
-WRONG_FORMAT_TEXT = """Wrong ❌️ format...  eg. /upload Img_url muzan-kibutsuji Demon-slayer 3
+WRONG_FORMAT_TEXT = """Wrong ❌️ format...  eg. /upload Img_url Pikachu Kanto 3
 
-img_url character-name anime-name rarity-number
+img_url pokemon-name region-name rarity-number
 
 use rarity number accordingly rarity Map
 
@@ -69,18 +69,18 @@ async def upload(update: Update, context: CallbackContext) -> None:
             message = await context.bot.send_photo(
                 chat_id=CHARA_CHANNEL_ID,
                 photo=args[0],
-                caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {anime}\n<b>Rarity:</b> {rarity}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
+                caption=f'<b>Pokemon Name:</b> {character_name}\n<b>Region:</b> {anime}\n<b>Rarity:</b> {rarity}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
                 parse_mode='HTML'
             )
             character['message_id'] = message.message_id
             await collection.insert_one(character)
-            await update.message.reply_text('CHARACTER ADDED....')
+            await update.message.reply_text('POKEMON ADDED....')
         except:
             await collection.insert_one(character)
-            update.effective_message.reply_text("Character Added but no Database Channel Found, Consider adding one.")
+            update.effective_message.reply_text("Pokemon Added but no Database Channel Found, Consider adding one.")
         
     except Exception as e:
-        await update.message.reply_text(f'Character Upload Unsuccessful. Error: {str(e)}\nIf you think this is a source error, forward to: {SUPPORT_CHAT}')
+        await update.message.reply_text(f'Pokemon Upload Unsuccessful. Error: {str(e)}\nIf you think this is a source error, forward to: {SUPPORT_CHAT}')
 
 async def delete(update: Update, context: CallbackContext) -> None:
     if str(update.effective_user.id) not in sudo_users:
@@ -101,7 +101,7 @@ async def delete(update: Update, context: CallbackContext) -> None:
             await context.bot.delete_message(chat_id=CHARA_CHANNEL_ID, message_id=character['message_id'])
             await update.message.reply_text('DONE')
         else:
-            await update.message.reply_text('Deleted Successfully from db, but character not found In Channel')
+            await update.message.reply_text('Deleted Successfully from db, but pokemon not found In Channel')
     except Exception as e:
         await update.message.reply_text(f'{str(e)}')
 
@@ -119,7 +119,7 @@ async def update(update: Update, context: CallbackContext) -> None:
         # Get character by ID
         character = await collection.find_one({'id': args[0]})
         if not character:
-            await update.message.reply_text('Character not found.')
+            await update.message.reply_text('Pokemon not found.')
             return
 
         # Check if field is valid
