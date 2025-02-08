@@ -16,7 +16,7 @@ from shivu import collection, top_global_groups_collection, group_user_totals_co
 from shivu import application, SUPPORT_CHAT, UPDATE_CHAT, db, LOGGER
 from shivu.modules import ALL_MODULES
 
-app = Flask(_name_)
+app = Flask(__name__)
 
 @app.route('/')
 def health_check():
@@ -25,7 +25,7 @@ def health_check():
 def run_health_check():
     app.run(host="0.0.0.0", port=8000, debug=False, use_reloader=False)
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     # Start Flask health check in a separate thread
     threading.Thread(target=run_health_check, daemon=True).start()
 
