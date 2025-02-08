@@ -44,9 +44,11 @@ async def upload(update: Update, context: CallbackContext) -> None:
         anime = args[2].replace('-', ' ').title()
 
         try:
-            urllib.request.urlopen(args[0])
-        except:
-            await update.message.reply_text('Invalid URL.')
+            response = requests.get(image_url, timeout=5)
+            if response.status_code != 200:
+                raise ValueError("Invalid Image URL")
+        except Exception as e:
+            await update.message.reply_text(f"❌ Invalid Image URL. Error: {str(e)}\nTry using a direct link ending with .jpg or .png.")
             return
 
         rarity_map = {1: "⚪ Common", 2: "🟣 Rare", 3: "🟡 Legendary", 4: "🟢 Medium"}
