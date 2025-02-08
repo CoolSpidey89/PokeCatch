@@ -2,18 +2,18 @@ class Config(object):
     LOGGER = True
 
     # Get this value from my.telegram.org/apps
-    OWNER_ID = "6765826972"
-    sudo_users = "6845325416", "6765826972"
-    GROUP_ID = -1002133191051
-    TOKEN = "6707490163:AAHZzqjm3rbEZsObRiNaT7DMtw_i5WPo_0o"
-    mongo_url = "mongodb+srv://HaremDBBot:ThisIsPasswordForHaremDB@haremdb.swzjngj.mongodb.net/?retryWrites=true&w=majority"
-    PHOTO_URL = ["https://telegra.ph/file/b925c3985f0f325e62e17.jpg", "https://telegra.ph/file/4211fb191383d895dab9d.jpg"]
-    SUPPORT_CHAT = "Collect_em_support"
-    UPDATE_CHAT = "Collect_em_support"
-    BOT_USERNAME = "Collect_Em_AllBot"
-    CHARA_CHANNEL_ID = "-1002133191051"
-    api_id = 26626068
-    api_hash = "bf423698bcbe33cfd58b11c78c42caa2"
+    OWNER_ID = "675431614387"
+    sudo_users = [675431614387]
+    GROUP_ID = -1002360912514
+    TOKEN = "7602328361:AAGW6LvxM3Pp62HcAUIJULSrpK8dKXPTxio"
+    mongo_url = "mongodb+srv://fireraider89:oFFjJl1nVeik6fqD@cluster0.0oqnf.mongodb.net/"
+    PHOTO_URL = ["http://ibb.co/931yv1pj"]
+    SUPPORT_CHAT = "Pokecollect"
+    UPDATE_CHAT = "Pokecollect"
+    BOT_USERNAME = "PokeCollectBot"
+    CHARA_CHANNEL_ID = "-1002359286194"
+    api_id = 25884836
+    api_hash = "a76661f3b514819280358b4f1e65df6a"
 
     
 class Production(Config):
