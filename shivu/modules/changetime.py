@@ -16,7 +16,7 @@ async def change_time(client: Client, message: Message):
         
 
     if member.status not in ADMINS :
-        await message.reply_text('You are not an Admin.')
+        await message.reply_text('You are not an Admin, Normie')
         return
 
     try:
@@ -26,8 +26,8 @@ async def change_time(client: Client, message: Message):
             return
 
         new_frequency = int(args[1])
-        if new_frequency < 100:
-            await message.reply_text('The message frequency must be greater than or equal to 100.')
+        if new_frequency < 50:
+            await message.reply_text('The message frequency must be greater than or equal to 50.')
             return
 
     
