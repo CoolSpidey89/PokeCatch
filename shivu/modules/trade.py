@@ -11,13 +11,13 @@ async def trade(client, message):
     sender_id = message.from_user.id
 
     if not message.reply_to_message:
-        await message.reply_text("You need to reply to a user's message to trade a Pokemon!")
+        await message.reply_text("You need to reply to a user's message to trade a pokemon!")
         return
 
     receiver_id = message.reply_to_message.from_user.id
 
     if sender_id == receiver_id:
-        await message.reply_text("Are you Dumb? You can't trade a Pokemon with yourself!")
+        await message.reply_text("You can't trade a Pokemon with yourself!")
         return
 
     if len(message.command) != 3:
@@ -46,7 +46,7 @@ async def trade(client, message):
 
 
     if len(message.command) != 3:
-        await message.reply_text("/trade [Your Pokemon ID] [Other User Pokemon ID]!")
+        await message.reply_text("/trade [Your Character ID] [Other User Character ID]!")
         return
 
     sender_character_id, receiver_character_id = message.command[1], message.command[2]
@@ -74,7 +74,7 @@ async def on_callback_query(client, callback_query):
         if _receiver_id == receiver_id:
             break
     else:
-        await callback_query.answer("This is not for you, Stupid!", show_alert=True)
+        await callback_query.answer("This is not for you!", show_alert=True)
         return
 
     if callback_query.data == "confirm_trade":
@@ -164,7 +164,7 @@ async def gift(client, message):
         ]
     )
 
-    await message.reply_text(f"do You Really Wanna Gift {message.reply_to_message.from_user.mention} ?", reply_markup=keyboard)
+    await message.reply_text(f"do You Really Wanns To Gift {message.reply_to_message.from_user.mention} ?", reply_markup=keyboard)
 
 @shivuu.on_callback_query(filters.create(lambda _, __, query: query.data in ["confirm_gift", "cancel_gift"]))
 async def on_callback_query(client, callback_query):
@@ -175,7 +175,7 @@ async def on_callback_query(client, callback_query):
         if _sender_id == sender_id:
             break
     else:
-        await callback_query.answer("Uff, This is not for you!", show_alert=True)
+        await callback_query.answer("This is not for you!", show_alert=True)
         return
 
     if callback_query.data == "confirm_gift":
@@ -202,6 +202,4 @@ async def on_callback_query(client, callback_query):
         
         del pending_gifts[(sender_id, receiver_id)]
 
-        await callback_query.message.edit_text(f"You have successfully gifted your character to [{gift['receiver_first_name']}](tg://user?id={receiver_id})!")
-
-
+        await callback_query.message.edit_text(f"You have successfully gifted your Pokemon to [{gift['receiver_first_name']}](tg://user?id={receiver_id})!")
