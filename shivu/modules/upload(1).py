@@ -81,14 +81,14 @@ async def upload(update: Update, context: CallbackContext) -> None:
 
         # ✅ Define DBL rarity levels
         rarity_map = {
-            "1": "⚪ Common",
+            "1": "🛡️ Common",
             "2": "🟢 Medium",
-            "3": "🔵 Rare",
-            "4": "🟣 Epic",
-            "5": "🔮 Legendary",
-            "6": "💠 Mythical",
-            "7": "🔱 God",
-            "8": "🏆 Event-Edition"
+            "3": "⭐️ Rare",
+            "4": "💠 Epic",
+            "5": "🔱 Legendary",
+            "6": "⚡️ Mythical",
+            "7": "🌐 God",
+            "8": "🔮 Limited-Edition"
         }
         rarity = rarity_map.get(rarity_input)
         if not rarity:
