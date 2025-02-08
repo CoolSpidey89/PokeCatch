@@ -18,9 +18,9 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     if not user or 'characters' not in user or not user['characters']:
         if update.message:
-            await update.message.reply_text('😔 You have not collected any characters yet!')
+            await update.message.reply_text('😔 You have not collected any Pokemons yet!')
         else:
-            await update.callback_query.edit_message_text('😔 You have not collected any characters yet!')
+            await update.callback_query.edit_message_text('😔 You have not collected any Pokemons yet!')
         return
 
     # Sort characters by category and ID
@@ -37,7 +37,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     page = max(0, min(page, total_pages - 1))  # Ensuring valid page number
 
     # Prepare message header
-    harem_message = f"<b>{escape(update.effective_user.first_name)}'s Harem - Page {page+1}/{total_pages}</b>\n"
+    harem_message = f"<b>{escape(update.effective_user.first_name)}'s Collection - Page {page+1}/{total_pages}</b>\n"
 
     # Get characters for the current page
     current_characters = unique_characters[page*15:(page+1)*15]
@@ -61,9 +61,9 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     if total_pages > 1:
         nav_buttons = []
         if page > 0:
-            nav_buttons.append(InlineKeyboardButton("⬅️", callback_data=f"harem:{page-1}:{user_id}"))
+            nav_buttons.append(InlineKeyboardButton("⬅️", callback_data=f"collection:{page-1}:{user_id}"))
         if page < total_pages - 1:
-            nav_buttons.append(InlineKeyboardButton("➡️", callback_data=f"harem:{page+1}:{user_id}"))
+            nav_buttons.append(InlineKeyboardButton("➡️", callback_data=f"collection:{page+1}:{user_id}"))
         keyboard.append(nav_buttons)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -111,7 +111,7 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
 
     # Restrict viewing to the owner of the harem
     if query.from_user.id != user_id:
-        await query.answer("❌ This is not your Harem!", show_alert=True)
+        await query.answer("❌ This is not your Collection!", show_alert=True)
         return
 
     await harem(update, context, page)
