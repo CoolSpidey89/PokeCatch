@@ -12,7 +12,7 @@ async def list_characters(update: Update, context: CallbackContext, page=1) -> N
     total_pages = (total_characters // CHARACTERS_PER_PAGE) + (1 if total_characters % CHARACTERS_PER_PAGE else 0)
 
     if total_characters == 0:
-        await update.message.reply_text("⚠️ No pokemons have been uploaded yet.")
+        await update.message.reply_text("⚠️ No Pokemons have been uploaded yet.")
         return
 
     if page < 1 or page > total_pages:
@@ -24,16 +24,16 @@ async def list_characters(update: Update, context: CallbackContext, page=1) -> N
     characters = await characters.to_list(length=CHARACTERS_PER_PAGE)
 
     # ✅ Format message
-    message = f"📜 **Pokemon List (Page {page}/{total_pages})**\n\n"
+    message = f"📜 **Pokemons List (Page {page}/{total_pages})**\n\n"
     for char in characters:
         message += f"🆔 `{char['id']}` | **{char['name']}**\n🎖️ {char['rarity']} | 🔹 **{char['category']}**\n\n"
 
     # ✅ Pagination buttons
     buttons = []
     if page > 1:
-        buttons.append(InlineKeyboardButton("⬅️ Previous", callback_data=f"pokemons:{page-1}"))
+        buttons.append(InlineKeyboardButton("⬅️ Previous", callback_data=f"characters:{page-1}"))
     if page < total_pages:
-        buttons.append(InlineKeyboardButton("Next ➡️", callback_data=f"pokemons:{page+1}"))
+        buttons.append(InlineKeyboardButton("Next ➡️", callback_data=f"characters:{page+1}"))
 
     reply_markup = InlineKeyboardMarkup([buttons] if buttons else [])
 
