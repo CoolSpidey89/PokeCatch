@@ -72,7 +72,7 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
     async with lock:
         # ✅ Fetch latest droptime from MongoDB
         chat_data = await user_totals_collection.find_one({'chat_id': chat_id})
-        message_frequency = chat_data.get("message_frequency", 50) if chat_data else 50
+        message_frequency = chat_data.get("message_frequency", 100) if chat_data else 100
 
         # ✅ Count messages
         message_counts[chat_id] = message_counts.get(chat_id, 0) + 1
