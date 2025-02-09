@@ -59,3 +59,6 @@ async def view_droptime(client: Client, message: Message):
         await message.reply_text(f"📊 Current Droptime: {message_frequency} messages")
     except Exception as e:
         await message.reply_text(f"❌ Failed to fetch droptime: {str(e)}")
+
+application.add_handler(CommandHandler("setdroptime", changetime, block=False))
+application.add_handler(CommandHandler("droptime", view_droptime, block=False))
