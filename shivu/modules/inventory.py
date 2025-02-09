@@ -9,11 +9,11 @@ async def inventory(update: Update, context: CallbackContext) -> None:
 
     # ✅ Ensure user exists in the database (Prevents missing inventory)
     if not user:
-        user = {'id': user_id, 'pokecoins': 0, 'magishards': 0, 'summon_tickets': 0, 'exclusive_tokens': 0}
+        user = {'id': user_id, 'coins': 0, 'chrono_crystals': 0, 'summon_tickets': 0, 'exclusive_tokens': 0}
         await user_collection.insert_one(user)
 
-    pokecoins = user.get('coins', 0)
-    magishards = user.get('chrono_crystals', 0)
+    coins = user.get('coins', 0)
+    chrono_crystals = user.get('chrono_crystals', 0)
     summon_tickets = user.get('summon_tickets', 0)
     exclusive_tokens = user.get('exclusive_tokens', 0)
 
@@ -21,8 +21,10 @@ async def inventory(update: Update, context: CallbackContext) -> None:
     inventory_message = (
         f"🎒 <b>{update.effective_user.first_name}'s Inventory</b>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"💰 <b>Pokecoins:</b> <code>{coins}</code>\n"
-        f"💎 <b>Magishards:</b> <code>{chrono_crystals}</code>\n"
+        f"💰 <b>Zeni:</b> <code>{coins}</code>\n"
+        f"💎 <b>Chrono Crystals:</b> <code>{chrono_crystals}</code>\n"
+        f"🎟 <b>Summon Tickets:</b> <code>{summon_tickets}</code>\n"
+        f"🛡️ <b>Exclusive Tokens:</b> <code>{exclusive_tokens}</code>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━\n"
         f"🔹 Keep guessing characters to earn more rewards!\n"
     )
@@ -46,8 +48,8 @@ async def modify_inventory(update: Update, context: CallbackContext, add=True) -
         if len(args) != 3:
             await update.message.reply_text(
                 "❌ Usage:\n"
-                "🔹 `/additem <user_id> <pokecoins/magishards> <amount>`\n"
-                "🔹 `/removeitem <user_id> <pokecoins/magishards> <amount>`",
+                "🔹 `/additem <user_id> <zeni/cc/ticket/token> <amount>`\n"
+                "🔹 `/removeitem <user_id> <zeni/cc/ticket/token> <amount>`",
                 parse_mode="HTML"
             )
             return
@@ -57,8 +59,8 @@ async def modify_inventory(update: Update, context: CallbackContext, add=True) -
         amount = int(args[2])
 
         item_map = {
-            "pokecoins": "coins",
-            "magishards": "chrono_crystals",
+            "zeni": "coins",
+            "cc": "chrono_crystals",
             "ticket": "summon_tickets",
             "token": "exclusive_tokens"
         }
