@@ -10,9 +10,8 @@ SUMMON_COST_TICKET = 1  # Summon Tickets per summon
 MAX_SUMMONS = 10  # Max summons per pull
 
 RARITY_ORDER = [
-    "⚪ Common", "🟢 Uncommon", "🔵 Rare", "🟣 Extreme",
-    "🟡 Sparking", "🔱 Ultra", "💠 Legends Limited",
-    "🔮 Zenkai", "🏆 Event-Exclusive"
+   "🛡️ Common", "🟢 Medium", "⭐️ Rare", "💠 Epic",
+   "🔱 Legendary", "⚡️ Mythical", "🌐 God", "🔮 Limited-Edition"
 ]  # Defines rarity order for sorting
 
 ANIMATION_FRAMES = [
