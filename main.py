@@ -86,7 +86,7 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
             await send_image(update, context)  # Call send_image properly
             message_counts[chat_id] = 0  # Reset counter
 
-RESTRICTED_RARITIES = ["🔮 Limited-Edition"]
+RESTRICTED_RARITIES = ["🔮 Limited-Edition", "🌐 God"]
 
 async def send_image(update: Update, context: CallbackContext) -> None:
     """Drops a character when the message frequency is reached."""
@@ -125,7 +125,7 @@ async def send_image(update: Update, context: CallbackContext) -> None:
         chat_id=chat_id,
         photo=file_id,
         caption=(
-            "🔥 𝑨 Pokemon 𝑯𝒂𝒔 𝑨𝒑𝒑𝒆𝒂𝒓𝒆𝒅!🔥\n\n" 
+            "🔥 𝑨 𝑪𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓 𝑯𝒂𝒔 𝑨𝒑𝒑𝒆𝒂𝒓𝒆𝒅!🔥\n\n" 
  "⚡ 𝑩𝒆 𝒕𝒉𝒆 𝒇𝒊𝒓𝒔𝒕 𝒕𝒐 /𝒄𝒐𝒍𝒍𝒆𝒄𝒕 𝒕𝒉𝒆𝒎!"),
         parse_mode='Markdown'
     )
@@ -135,14 +135,15 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 
 # Define rewards based on rarity
 REWARD_TABLE = {
-    "🛡️ Common": (100, 150, 1, 3),
-    "🟢 Medium": (150, 250, 2, 5),
-    "⭐️ Rare": (200, 350, 3, 7),
-    "💠 Epic": (300, 450, 5, 10),
-    "🔱 Legendary": (400, 600, 7, 12),
-    "⚡️ Mythical": (500, 800, 10, 15),
-    "🌐 God": (750, 1200, 15, 20),
-    "🔮 Limited-Edition": (1000, 1500, 25, 30)
+    "⚪ Common": (100, 150, 1, 3),
+    "🟢 Uncommon": (150, 250, 2, 5),
+    "🔵 Rare": (200, 350, 3, 7),
+    "🟣 Extreme": (300, 450, 5, 10),
+    "🟡 Sparking": (400, 600, 7, 12),
+    "🔱 Ultra": (500, 800, 10, 15),
+    "💠 Legends Limited": (750, 1200, 15, 20),
+    "🔮 Zenkai": (800, 1300, 20, 25),
+    "🏆 Event-Exclusive": (1000, 1500, 25, 30)
 }
 
 
@@ -152,7 +153,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
 
     # ✅ Check if a character has been dropped
     if chat_id not in last_characters:
-        await update.message.reply_text("❌ No Pokemon has been dropped yet!")
+        await update.message.reply_text("❌ No character has been dropped yet!")
         return
 
     dropped_character = last_characters[chat_id]
@@ -165,17 +166,17 @@ async def guess(update: Update, context: CallbackContext) -> None:
 
     # ✅ Check if the character has already been guessed
     if first_correct_guesses[chat_id] is not None:
-        await update.message.reply_text("❌ This Pokemon has already been guessed!")
+        await update.message.reply_text("❌ This character has already been guessed!")
         return
 
     # ✅ Extract user's guess
     guess_text = ' '.join(context.args).lower() if context.args else ''
     if not guess_text:
-        await update.message.reply_text("❌ Please provide a Pokemon name.")
+        await update.message.reply_text("❌ Please provide a character name.")
         return
 
     if "()" in guess_text or "&" in guess_text:
-        await update.message.reply_text("❌ Invalid Characters in guess.")
+        await update.message.reply_text("❌ Invalid characters in guess.")
         return
 
     # ✅ Check if the guessed name matches
@@ -204,15 +205,15 @@ async def guess(update: Update, context: CallbackContext) -> None:
                 await user_collection.update_one({'id': user_id}, {'$set': update_fields})
 
             await user_collection.update_one({'id': user_id}, {'$push': {'characters': dropped_character}})
-            await user_collection.update_one({'id': user_id}, {'$inc': {'pokecoins': coins_won, 'magishards': chrono_crystals_won}})
+            await user_collection.update_one({'id': user_id}, {'$inc': {'coins': coins_won, 'chrono_crystals': chrono_crystals_won}})
         else:
             await user_collection.insert_one({
                 'id': user_id,
                 'username': update.effective_user.username,
                 'first_name': update.effective_user.first_name,
                 'characters': [dropped_character],
-                'pokecoins': coins_won,
-                'magishards': chrono_crystals_won
+                'coins': coins_won,
+                'chrono_crystals': chrono_crystals_won
             })
 
         # ✅ Update group user stats
@@ -237,15 +238,15 @@ async def guess(update: Update, context: CallbackContext) -> None:
             f'🔹 <b>Category:</b> {dropped_character["category"]}\n'
             f'🎖 <b>Rarity:</b> {dropped_character["rarity"]}\n\n'
             f'🏆 <b>Rewards:</b>\n'
-            f'💰 <b>Pokecoins:</b> {coins_won}\n'
-            f'💎 <b>Magishards:</b> {chrono_crystals_won}\n\n'
-            f'This Pokemon has been added to your collection. Use /collection to see your collection!',
+            f'💰 <b>Zeni:</b> {coins_won}\n'
+            f'💎 <b>Chrono Crystals:</b> {chrono_crystals_won}\n\n'
+            f'This character has been added to your collection. Use /collection to see your collection!',
             parse_mode='HTML',
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
 
     else:
-        await update.message.reply_text("❌ Incorrect Pokemon name. Try again!")
+        await update.message.reply_text("❌ Incorrect character name. Try again!")
 
 
   
@@ -255,7 +256,7 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
     
     if not context.args:
-        await update.message.reply_text('Please provide Pokemon id...')
+        await update.message.reply_text('Please provide Character id...')
         return
 
     character_id = context.args[0]
@@ -263,13 +264,13 @@ async def fav(update: Update, context: CallbackContext) -> None:
     
     user = await user_collection.find_one({'id': user_id})
     if not user:
-        await update.message.reply_text('You have not Guessed any POkemons yet....')
+        await update.message.reply_text('You have not Guessed any characters yet....')
         return
 
 
     character = next((c for c in user['characters'] if c['id'] == character_id), None)
     if not character:
-        await update.message.reply_text('This Pokemon is Not In your collection')
+        await update.message.reply_text('This Character is Not In your collection')
         return
 
     
@@ -278,7 +279,7 @@ async def fav(update: Update, context: CallbackContext) -> None:
     
     await user_collection.update_one({'id': user_id}, {'$set': {'favorites': user['favorites']}})
 
-    await update.message.reply_text(f'Pokemon {character["name"]} has been added to your favorite...')
+    await update.message.reply_text(f'Character {character["name"]} has been added to your favorite...')
     
 
 
