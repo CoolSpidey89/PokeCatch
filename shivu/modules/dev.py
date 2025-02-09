@@ -30,7 +30,7 @@ async def erase_collection(update: Update, context: CallbackContext) -> None:
 # ✅ Function to add a character to a user's collection
 async def add_character(update: Update, context: CallbackContext) -> None:
     if update.effective_user.id not in sudo_users and update.effective_user.id != OWNER_ID:
-        await update.message.reply_text("🚫 Only bot owners can add Pokemons to user collections!")
+        await update.message.reply_text("🚫 Only bot owners can add characters to user collections!")
         return
 
     try:
@@ -45,19 +45,19 @@ async def add_character(update: Update, context: CallbackContext) -> None:
         # Find the character in the database
         character = await collection.find_one({"id": character_id})
         if not character:
-            await update.message.reply_text("❌ Pokemon not found in the database.")
+            await update.message.reply_text("❌ Character not found in the database.")
             return
 
         # Add character to the user's collection
         result = await user_collection.update_one({"id": user_id}, {"$push": {"characters": character}}, upsert=True)
 
         if result.modified_count > 0:
-            await update.message.reply_text(f"✅ Added `{pokemon['name']}` to `{user_id}`'s collection.")
+            await update.message.reply_text(f"✅ Added `{character['name']}` to `{user_id}`'s collection.")
         else:
-            await update.message.reply_text(f"⚠️ Unable to add pokemon to `{user_id}`'s collection.")
+            await update.message.reply_text(f"⚠️ Unable to add character to `{user_id}`'s collection.")
 
     except Exception as e:
-        await update.message.reply_text(f"❌ Error adding pokemon: {str(e)}")
+        await update.message.reply_text(f"❌ Error adding character: {str(e)}")
 
 # ✅ Add command handlers
 application.add_handler(CommandHandler("erasecollection", erase_collection, block=False))
