@@ -1,6 +1,6 @@
 import logging  
 import os
-from hydrogram import Client 
+from pyrogram import Client 
 from telegram.ext import Application
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -33,7 +33,7 @@ OWNER_ID = Config.OWNER_ID
 
 application = Application.builder().token(TOKEN).build()
 shivuu = Client("Shivu", api_id, api_hash, bot_token=TOKEN)
-lol = AsyncIOMotorClient(mongo_url)
+lol = AsyncIOMotorClient(mongo_url, tls=True, tlsAllowInvalidCertificates=True)
 db = lol['Character_catcher']
 collection = db['anime_characters_lol']
 user_totals_collection = db['user_totals_lmaoooo']
@@ -41,3 +41,4 @@ user_collection = db["user_collection_lmaoooo"]
 group_user_totals_collection = db['group_user_totalsssssss']
 top_global_groups_collection = db['top_global_groups']
 pm_users = db['total_pm_users']
+banners_collection = db['banners']
