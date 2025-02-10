@@ -1,23 +1,24 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 from shivu import user_collection, application, OWNER_ID, sudo_users
 
 async def inventory(update: Update, context: CallbackContext) -> None:
     """Shows the user's inventory (Zeni, Chrono Crystals, Tickets, and Exclusive Tokens)."""
     user_id = update.effective_user.id
-    user = await user_collection.find_one({'id': user_id})
+    user = await user_collection.find_one({'id': user_id}) or {}
 
-    # ✅ Ensure user exists in the database (Prevents missing inventory)
-    if not user:
-        user = {'id': user_id, 'coins': 0, 'chrono_crystals': 0, 'summon_tickets': 0, 'exclusive_tokens': 0}
-        await user_collection.insert_one(user)
+    # ✅ Initialize inventory if user does not exist
+    user.setdefault('coins', 0)
+    user.setdefault('chrono_crystals', 0)
+    user.setdefault('summon_tickets', 0)
+    user.setdefault('exclusive_tokens', 0)
 
-    coins = user.get('coins', 0)
-    chrono_crystals = user.get('chrono_crystals', 0)
-    summon_tickets = user.get('summon_tickets', 0)
-    exclusive_tokens = user.get('exclusive_tokens', 0)
+    coins = user['coins']
+    chrono_crystals = user['chrono_crystals']
+    summon_tickets = user['summon_tickets']
+    exclusive_tokens = user['exclusive_tokens']
 
-    # 🏆 **Enhanced Inventory Message**
+    # 🎒 **Enhanced Inventory Message**
     inventory_message = (
         f"🎒 <b>{update.effective_user.first_name}'s Inventory</b>\n"
         f"━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -29,13 +30,9 @@ async def inventory(update: Update, context: CallbackContext) -> None:
         f"🔹 Keep guessing characters to earn more rewards!\n"
     )
 
-    # ✅ Inline Button for Shop Access
-    keyboard = [[InlineKeyboardButton("🛍️ Open Shop", callback_data="open_shop")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text(inventory_message, parse_mode="HTML")
 
-    await update.message.reply_text(inventory_message, parse_mode="HTML", reply_markup=reply_markup)
-
-async def modify_inventory(update: Update, context: CallbackContext, add=True) -> None:
+async def modify_inventory(update: Update, context: CallbackContext, add: bool) -> None:
     """Allows the owner or sudo users to add/remove items from a user's inventory."""
     user_id = update.effective_user.id
 
@@ -72,13 +69,11 @@ async def modify_inventory(update: Update, context: CallbackContext, add=True) -
         field = item_map[item]
 
         # ✅ Ensure user exists in the database (Prevents missing inventory)
-        user = await user_collection.find_one({'id': target_id})
-        if not user:
-            user = {'id': target_id, 'coins': 0, 'chrono_crystals': 0, 'summon_tickets': 0, 'exclusive_tokens': 0}
-            await user_collection.insert_one(user)
+        user = await user_collection.find_one({'id': target_id}) or {}
+        user.setdefault(field, 0)  # Default to 0 if missing
 
         # ✅ Prevent negative values when removing items
-        new_value = max(0, user.get(field, 0) + (amount if add else -amount))
+        new_value = max(0, user[field] + (amount if add else -amount))
 
         await user_collection.update_one({'id': target_id}, {'$set': {field: new_value}})
 
@@ -90,7 +85,16 @@ async def modify_inventory(update: Update, context: CallbackContext, add=True) -
     except Exception as e:
         await update.message.reply_text(f"❌ Error: {str(e)}", parse_mode="HTML")
 
-# ✅ Add Command Handlers
+# ✅ **Separate handlers for Add & Remove Inventory**
+async def add_inventory(update: Update, context: CallbackContext) -> None:
+    """Command for adding inventory items."""
+    await modify_inventory(update, context, add=True)
+
+async def remove_inventory(update: Update, context: CallbackContext) -> None:
+    """Command for removing inventory items."""
+    await modify_inventory(update, context, add=False)
+
+# ✅ **Fixed Handlers**
 application.add_handler(CommandHandler("inventory", inventory, block=False))
-application.add_handler(CommandHandler("additem", lambda u, c: modify_inventory(u, c, add=True), block=False))
-application.add_handler(CommandHandler("removeitem", lambda u, c: modify_inventory(u, c, add=False), block=False))
+application.add_handler(CommandHandler("additem", add_inventory, block=False))
+application.add_handler(CommandHandler("removeitem", remove_inventory, block=False))
