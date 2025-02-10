@@ -6,12 +6,12 @@ from shivu import application, sudo_users, OWNER_ID, collection, db, CHARA_CHANN
 
 # ✅ Correct command usage instructions
 WRONG_FORMAT_TEXT = """❌ Incorrect Format!
-Use: `/upload <image_url> <character-name> <rarity-number> <category-number>`
+Use: /upload <image_url> <character-name> <rarity-number> <category-number>
 
 Example:  
-`/upload https://example.com/goku.jpg Goku 5 1`
+/upload https://example.com/goku.jpg Goku 5 1
 
-🎖️ **Rarity Guide:**  
+🎖 Rarity Guide:  
 1- Common  
 2- Medium   
 3- Rare   
@@ -21,7 +21,7 @@ Example:
 7- God
 8- Event Edition
 
-🔹 **Category Guide:**  
+🔹 Category Guide:  
 1. Kanto
 2. Johto 
 3. Hoenn 
@@ -35,7 +35,6 @@ Example:
 11. Trainers
 """
 
-# ✅ Function to generate a unique character ID
 async def get_next_sequence_number(sequence_name):
     sequence_collection = db.sequences
     sequence_document = await sequence_collection.find_one_and_update(
@@ -46,7 +45,7 @@ async def get_next_sequence_number(sequence_name):
     )
     return sequence_document['sequence_value']
 
-# ✅ Function to upload a character
+
 async def upload(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
@@ -57,31 +56,30 @@ async def upload(update: Update, context: CallbackContext) -> None:
 
     try:
         args = context.args
-        print(f"📥 [DEBUG] Upload Command Received - Args: {args}")  # Log received arguments
-
-        if len(args) < 4:  # Ensure at least 4 arguments exist
+        if len(args) < 4:  # Minimum required arguments
             await update.message.reply_text(WRONG_FORMAT_TEXT)
             return
 
-        image_url = args[0]  
+        file_id = args[0]  # First argument is file_id
         rarity_input = args[-2]  # Second-last argument is rarity
         category_input = args[-1]  # Last argument is category
         character_name = ' '.join(args[1:-2]).replace('-', ' ').title()  # Everything in between is the name
 
-        print(f"🎯 [DEBUG] Parsed Data - Image: {image_url}, Name: {character_name}, Rarity: {rarity_input}, Category: {category_input}")
+        # ✅ Check if character is exclusive
+        is_exclusive = "exclusive" in args
+        if is_exclusive:
+            category_input += " (Exclusive)"  # Append to category for database clarity
 
-        # ✅ Validate image URL (Check if it's a valid direct image)
+        # ✅ Validate file_id by checking if it exists using Telegram's API
         try:
-            response = requests.get(image_url, timeout=5)
-            if response.status_code != 200:
-                raise ValueError("Invalid Image URL")
-        except Exception as e:
-            await update.message.reply_text(f"❌ Invalid Image URL. Error: {str(e)}\nTry using a direct link ending with .jpg or .png.")
+            await context.bot.get_file(file_id)  # Attempt to get the file from Telegram servers
+        except Exception:
+            await update.message.reply_text("❌ Invalid File ID. Please provide correct file id.")
             return
 
-        # ✅ Define DBL rarity levels
-        rarity_map = {
-            "1": "🛡️ Common",
+
+       rarity_map = {
+            "1": "🛡 Common",
             "2": "🟢 Medium",
             "3": "⭐️ Rare",
             "4": "💠 Epic",
@@ -111,52 +109,53 @@ async def upload(update: Update, context: CallbackContext) -> None:
               }
         category = category_map.get(category_input)
         if not category:
-            await update.message.reply_text("❌ Invalid Category. Use numbers: 1-11.")
+            await update.message.reply_text("❌ Invalid Category. Use numbers: 1-9.")
             return
 
-        # ✅ Generate unique character ID
         char_id = str(await get_next_sequence_number("character_id")).zfill(3)
-        print(f"🔢 [DEBUG] Generated Character ID: {char_id}")
 
         character = {
-            'img_url': image_url,
+            'file_id': file_id,
             'name': character_name,
             'rarity': rarity,
             'category': category,
-            'id': char_id
+            'id': char_id,
+            'exclusive': is_exclusive  # Mark as exclusive if applicable
         }
 
-        # ✅ Send the character image to the character channel
         try:
-            print(f"📤 [DEBUG] Sending Image to Character Channel {CHARA_CHANNEL_ID}...")
+            caption_text = (
+                f"🏆 **New Character Added!**\n\n"
+                f"🔥 **Character:** {character_name}\n"
+                f"🎖️ **Rarity:** {rarity}\n"
+                f"🔹 **Category:** {category}\n"
+                f"🆔 **ID:** {char_id}\n\n"
+                f"👤 Added by [{update.effective_user.first_name}](tg://user?id={user_id})"
+            )
+
+            if is_exclusive:
+                caption_text += "\n🚀 **Exclusive Character** 🚀"
+
             message = await context.bot.send_photo(
                 chat_id=CHARA_CHANNEL_ID,
-                photo=image_url,
-                caption=f"🏆 **New Pokemon Added!**\n\n"
-                        f"🔥 **Pokemon:** {character_name}\n"
-                        f"🎖️ **Rarity:** {rarity}\n"
-                        f"🔹 **Category:** {category}\n"
-                        f"🆔 **ID:** {char_id}\n\n"
-                        f"👤 Added by [{update.effective_user.first_name}](tg://user?id={user_id})",
+                photo=file_id,
+                caption=caption_text,
                 parse_mode='Markdown'
             )
+
             character["message_id"] = message.message_id
             await collection.insert_one(character)
-            print(f"✅ [DEBUG] Pokemon Added Successfully!")
             await update.message.reply_text(f"✅ `{character_name}` successfully added!")
-
         except Exception as e:
-            print(f"❌ [ERROR] Failed to Send Image: {str(e)}")
-            await update.message.reply_text(f"⚠️ Pokemon added, but couldn't send image. Error: {str(e)}")
+            await update.message.reply_text(f"⚠️ Character added, but couldn't send image. Error: {str(e)}")
 
     except Exception as e:
-        print(f"❌ [ERROR] Upload Failed: {str(e)}")
-        await update.message.reply_text(f"❌ Upload failed! Error: {str(e)}\nContact support: {SUPPORT_CHAT}")
+        await update.message.reply_text(f"❌ Upload failed! Error: {str(e)}")
 
 # ✅ Function to delete a character
 async def delete(update: Update, context: CallbackContext) -> None:
     if update.effective_user.id not in sudo_users and update.effective_user.id != OWNER_ID:
-        await update.message.reply_text("🚫 Only bot owners can delete Pokemons!")
+        await update.message.reply_text("🚫 Only bot owners can delete characters!")
         return
 
     try:
@@ -170,7 +169,7 @@ async def delete(update: Update, context: CallbackContext) -> None:
         # Find the character in the database
         character = await collection.find_one({"id": character_id})
         if not character:
-            await update.message.reply_text("⚠️ Pokemon not found in the database.")
+            await update.message.reply_text("⚠️ Character not found in the database.")
             return
 
         # Delete the character from the main collection
@@ -212,7 +211,7 @@ async def update(update: Update, context: CallbackContext) -> None:
             await update.message.reply_text("❌ Character not found.")
             return
 
-        valid_fields = ["img_url", "name", "rarity", "category"]
+        valid_fields = ["file_id", "name", "rarity", "category"]
         if args[1] not in valid_fields:
             await update.message.reply_text(f"❌ Invalid field! Use one of: {', '.join(valid_fields)}")
             return
