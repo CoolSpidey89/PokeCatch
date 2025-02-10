@@ -78,8 +78,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
             return
 
 
-       rarity_map = {
-            "1": "🛡 Common",
+       rarity_map = { "1": "🛡 Common",
             "2": "🟢 Medium",
             "3": "⭐️ Rare",
             "4": "💠 Epic",
@@ -87,7 +86,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
             "6": "⚡️ Mythical",
             "7": "🌐 God",
             "8": "🔮 Limited-Edition"
-        }
+       }
         rarity = rarity_map.get(rarity_input)
         if not rarity:
             await update.message.reply_text("❌ Invalid Rarity. Use numbers: 1-8.")
