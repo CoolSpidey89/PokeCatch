@@ -77,8 +77,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
             await update.message.reply_text("❌ Invalid File ID. Please provide correct file id.")
             return
 
-
-       rarity_map = { 
+       rarity_map = {
             "1": "🛡 Common",
             "2": "🟢 Medium",
             "3": "⭐️ Rare",
@@ -87,7 +86,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
             "6": "⚡️ Mythical",
             "7": "🌐 God",
             "8": "🔮 Limited-Edition"
-       }
+        }
         rarity = rarity_map.get(rarity_input)
         if not rarity:
             await update.message.reply_text("❌ Invalid Rarity. Use numbers: 1-8.")
@@ -107,6 +106,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
             "10": "🔟 Hisui",
             "11": "🗿 Trainers",
               }
+     
         category = category_map.get(category_input)
         if not category:
             await update.message.reply_text("❌ Invalid Category. Use numbers: 1-9.")
