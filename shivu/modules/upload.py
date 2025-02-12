@@ -15,24 +15,24 @@ Example:
 1- Common  
 2- Medium   
 3- Rare   
-4- Epic
-5- Legendary
-6- Mythical
-7- God
-8- Event Edition
+4- Epic  
+5- Legendary  
+6- Mythical  
+7- God  
+8- Event Edition  
 
 🔹 Category Guide:  
-1. Kanto
-2. Johto 
-3. Hoenn 
+1. Kanto  
+2. Johto  
+3. Hoenn  
 4. Sinnoh  
-5. Unova
+5. Unova  
 6. Kalos  
 7. Alola  
-8. Galar
-9. Paldea
-10. Hisui
-11. Trainers
+8. Galar  
+9. Paldea  
+10. Hisui  
+11. Trainers  
 """
 
 async def get_next_sequence_number(sequence_name):
@@ -44,7 +44,6 @@ async def get_next_sequence_number(sequence_name):
         return_document=ReturnDocument.AFTER
     )
     return sequence_document['sequence_value']
-
 
 async def upload(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
@@ -70,14 +69,8 @@ async def upload(update: Update, context: CallbackContext) -> None:
         if is_exclusive:
             category_input += " (Exclusive)"  # Append to category for database clarity
 
-        # ✅ Validate file_id by checking if it exists using Telegram's API
-        try:
-            await context.bot.get_file(file_id)  # Attempt to get the file from Telegram servers
-        except Exception:
-            await update.message.reply_text("❌ Invalid File ID. Please provide correct file id.")
-            return
-
-       rarity_map = {
+        # ✅ Define rarity levels
+        rarity_map = {
             "1": "🛡 Common",
             "2": "🟢 Medium",
             "3": "⭐️ Rare",
@@ -103,13 +96,13 @@ async def upload(update: Update, context: CallbackContext) -> None:
             "7": "7️⃣ Alola",
             "8": "8️⃣ Galar",
             "9": "9️⃣ Paldea",
-            "10":"🔟 Hisui",
-            "11":"🗿 Trainers",
-              }
+            "10": "🔟 Hisui",
+            "11": "🗿 Trainers"
+        }
      
         category = category_map.get(category_input)
         if not category:
-            await update.message.reply_text("❌ Invalid Category. Use numbers: 1-9.")
+            await update.message.reply_text("❌ Invalid Category. Use numbers: 1-11.")
             return
 
         char_id = str(await get_next_sequence_number("character_id")).zfill(3)
@@ -152,88 +145,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         await update.message.reply_text(f"❌ Upload failed! Error: {str(e)}")
 
-# ✅ Function to delete a character
-async def delete(update: Update, context: CallbackContext) -> None:
-    if update.effective_user.id not in sudo_users and update.effective_user.id != OWNER_ID:
-        await update.message.reply_text("🚫 Only bot owners can delete characters!")
-        return
-
-    try:
-        args = context.args
-        if len(args) != 1:
-            await update.message.reply_text("❌ Incorrect format! Use: `/delete <Character ID>`")
-            return
-
-        character_id = args[0]
-
-        # Find the character in the database
-        character = await collection.find_one({"id": character_id})
-        if not character:
-            await update.message.reply_text("⚠️ Character not found in the database.")
-            return
-
-        # Delete the character from the main collection
-        await collection.delete_one({"id": character_id})
-
-        # Delete from users' collections
-        await user_collection.update_many(
-            {}, 
-            {"$pull": {"characters": {"id": character_id}}}  # Remove character from all users' collections
-        )
-
-        # Try deleting the character's message from the character channel
-        try:
-            await context.bot.delete_message(chat_id=CHARA_CHANNEL_ID, message_id=character["message_id"])
-        except:
-            pass  # Ignore if the message doesn't exist
-
-        await update.message.reply_text(f"✅ Character `{character_id}` deleted successfully from database & user collections!")
-
-    except Exception as e:
-        await update.message.reply_text(f"❌ Error deleting character: {str(e)}")
-
-# ✅ Function to update character details
-async def update(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
-
-    if user_id not in sudo_users and user_id != OWNER_ID:
-        await update.message.reply_text("🚫 You do not have permission to update characters!")
-        return
-
-    try:
-        args = context.args
-        if len(args) != 3:
-            await update.message.reply_text("❌ Incorrect format! Use: `/update <ID> <field> <new_value>`")
-            return
-
-        character = await collection.find_one({'id': args[0]})
-        if not character:
-            await update.message.reply_text("❌ Character not found.")
-            return
-
-        valid_fields = ["file_id", "name", "rarity", "category"]
-        if args[1] not in valid_fields:
-            await update.message.reply_text(f"❌ Invalid field! Use one of: {', '.join(valid_fields)}")
-            return
-
-        # ✅ Handle rarity update
-        if args[1] == "rarity":
-            if args[2] not in rarity_map:
-                await update.message.reply_text("❌ Invalid rarity. Use 1-9.")
-                return
-            new_value = rarity_map[args[2]]
-        else:
-            new_value = args[2]
-
-        # ✅ Update the database
-        await collection.find_one_and_update({'id': args[0]}, {'$set': {args[1]: new_value}})
-
-        await update.message.reply_text(f"✅ Character `{args[0]}` updated successfully!")
-
-    except Exception as e:
-        await update.message.reply_text("❌ Update failed! Make sure the bot has channel permissions.")
-
 # ✅ Add command handlers
 application.add_handler(CommandHandler("upload", upload, block=False))
-application.add_handler(CommandHandler("delete", delete, block=False))
-application.add_handler(CommandHandler("update", update, block=False))
+
+
