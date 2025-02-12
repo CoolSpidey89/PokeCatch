@@ -83,8 +83,8 @@ async def claim(update: Update, context: CallbackContext) -> None:
     
     # ✅ Send success message with character details
     await update.message.reply_photo(
-        photo=character.get("img_url", ""),
-        caption=(
+        photo=character.get("file_id", ""),  # Changed from img_url to file_id
+        caption=(  # Changed caption to use HTML for better formatting
             f"🎉 <b>{update.effective_user.first_name}</b>, you have claimed a Pokémon!\n\n"
             f"🆔 <b>Name:</b> {character['name']}\n"
             f"🔹 <b>Category:</b> {character.get('category', 'Unknown')}\n"
