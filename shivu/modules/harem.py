@@ -114,6 +114,10 @@ async def sort_collection(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("🔀 Choose how you want to sort your collection:", reply_markup=reply_markup)
 
+     if query.from_user.id != user_id:
+        await query.answer("❌ This is not your Collection!", show_alert=True)
+        return
+
 async def sort_callback(update: Update, context: CallbackContext) -> None:
     """Handles sorting preference and saves it in the database."""
     query = update.callback_query
