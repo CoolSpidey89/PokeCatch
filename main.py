@@ -114,23 +114,24 @@ async def send_image(update: Update, context: CallbackContext) -> None:
     sent_characters[chat_id].append(character['id'])
     last_characters[chat_id] = character
 
-    # ✅ Use **file_id** instead of image URL
-    file_id = character.get('file_id', None)
-    if not file_id:
-        print(f"❌ [DEBUG] Missing `file_id` for {character['name']} | Skipping drop...")
-        return  # Skip if no file_id is present
+    # ✅ Use **img_url** instead of file_id
+    img_url = character.get('img_url', None)
+    if not img_url:
+        print(f"❌ [DEBUG] Missing `img_url` for {character['name']} | Skipping drop...")
+        return  # Skip if no img_url is present
 
     # ✅ Drop the character
     await context.bot.send_photo(
         chat_id=chat_id,
-        photo=file_id,
+        photo=img_url,
         caption=(
             "🔥 𝑨 𝑪𝒉𝒂𝒓𝒂𝒄𝒕𝒆𝒓 𝑯𝒂𝒔 𝑨𝒑𝒑𝒆𝒂𝒓𝒆𝒅!🔥\n\n" 
- "⚡ 𝑩𝒆 𝒕𝒉𝒆 𝒇𝒊𝒓𝒔𝒕 𝒕𝒐 /𝒄𝒐𝒍𝒍𝒆𝒄𝒕 𝒕𝒉𝒆𝒎!"),
+            "⚡ 𝑩𝒆 𝒕𝒉𝒆 𝒇𝒊𝒓𝒔𝒕 𝒕𝒐 /𝒄𝒐𝒍𝒍𝒆𝒄𝒕 𝒕𝒉𝒆𝒎!"
+        ),
         parse_mode='Markdown'
     )
 
-    print(f"✅ [DEBUG] Character Dropped in {chat_id}: {character['name']}")
+    print(f"✅ [DEBUG] Character Dropped in {chat_id}: {character['name']} (via img_url)")
             
 
 # Define rewards based on rarity
