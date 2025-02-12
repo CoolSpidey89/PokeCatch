@@ -1,8 +1,8 @@
-import datetime
-import random
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CommandHandler, CallbackContext
-from shivu import collection, user_collection  # Ensure you import the right DB collections
+from shivu import application, collection, user_collection  # ✅ Import application
+import datetime, random
+
 
 # Time limit for claiming (24 hours)
 CLAIM_COOLDOWN_HOURS = 24
