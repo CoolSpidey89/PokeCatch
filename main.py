@@ -88,6 +88,9 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
 
 RESTRICTED_RARITIES = ["🔮 Limited-Edition", "🌐 God"]
 
+import requests
+import re
+
 async def send_image(update: Update, context: CallbackContext) -> None:
     """Drops a character when the message frequency is reached."""
     chat_id = update.effective_chat.id
@@ -97,7 +100,7 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 
     if not all_characters:
         print(f"❌ [DEBUG] No valid characters found for dropping in {chat_id}!")
-        return  # No valid characters available
+        return  
 
     # ✅ Prevent duplicate character drops
     if chat_id not in sent_characters:
@@ -106,19 +109,37 @@ async def send_image(update: Update, context: CallbackContext) -> None:
     available_characters = [c for c in all_characters if c['id'] not in sent_characters[chat_id]]
 
     if not available_characters:
-        sent_characters[chat_id] = []  # Reset tracking
-        available_characters = all_characters  # Refill with all valid characters
+        sent_characters[chat_id] = []
+        available_characters = all_characters  
 
     # ✅ Select a **random character**
     character = random.choice(available_characters)
     sent_characters[chat_id].append(character['id'])
     last_characters[chat_id] = character
 
-    # ✅ Use **img_url** instead of file_id
+    # ✅ Get image URL and convert Postimg URLs
     img_url = character.get('img_url', None)
+
     if not img_url:
         print(f"❌ [DEBUG] Missing `img_url` for {character['name']} | Skipping drop...")
-        return  # Skip if no img_url is present
+        return  
+
+    # ✅ Convert Postimg URLs to direct image links
+    if "postimg.cc" in img_url:
+        img_url = await get_postimg_direct_link(img_url)
+
+    # ✅ Validate the final image URL
+    try:
+        response = requests.head(img_url, timeout=5)
+        content_type = response.headers.get("Content-Type", "")
+
+        if not response.ok or "image" not in content_type:
+            print(f"❌ [DEBUG] Invalid image URL: {img_url} | Content-Type: {content_type}")
+            return  
+
+    except requests.RequestException as e:
+        print(f"❌ [DEBUG] Error checking image URL: {img_url} | Error: {e}")
+        return  
 
     # ✅ Drop the character
     await context.bot.send_photo(
@@ -132,6 +153,25 @@ async def send_image(update: Update, context: CallbackContext) -> None:
     )
 
     print(f"✅ [DEBUG] Character Dropped in {chat_id}: {character['name']} (via img_url)")
+
+
+async def get_postimg_direct_link(postimg_url: str) -> str:
+    """
+    Converts a Postimg page URL to a direct image link.
+    """
+    try:
+        response = requests.get(postimg_url, timeout=5)
+        response.raise_for_status()
+
+        # ✅ Extract image URL using regex
+        match = re.search(r'https://i\.postimg\.cc/[^"]+', response.text)
+        if match:
+            return match.group(0)  # Return the direct image URL
+
+    except requests.RequestException as e:
+        print(f"❌ [DEBUG] Error fetching Postimg direct link: {e}")
+
+    return postimg_url  # Return original URL if conversion fails
             
 
 # Define rewards based on rarity
