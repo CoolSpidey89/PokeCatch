@@ -60,7 +60,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
             await update.message.reply_text(WRONG_FORMAT_TEXT)
             return
 
-        file_id = args[0]  # First argument is file_id
+        img_url = args[0]  # First argument is img_url
         rarity_input = args[-2]  # Second-last argument is rarity
         category_input = args[-1]  # Last argument is category
         character_name = ' '.join(args[1:-2]).replace('-', ' ').title()  # Everything in between is the name
@@ -115,7 +115,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
         char_id = str(await get_next_sequence_number("character_id")).zfill(3)
 
         character = {
-            'file_id': file_id,
+            'img_url': img_url,
             'name': character_name,
             'rarity': rarity,
             'category': category,
@@ -138,7 +138,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
 
             message = await context.bot.send_photo(
                 chat_id=CHARA_CHANNEL_ID,
-                photo=file_id,
+                photo=img_url,
                 caption=caption_text,
                 parse_mode='Markdown'
             )
