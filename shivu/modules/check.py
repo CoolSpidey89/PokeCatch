@@ -3,48 +3,43 @@ from telegram.ext import CommandHandler, CallbackContext
 import re
 from shivu import application
 
-async def check_pokemon(update: Update, context: CallbackContext) -> None:
-    """Fetches Pokémon details from the database using an ID."""
-    
-    if not context.args:
-        await update.message.reply_text("❌ Please provide a Pokémon ID. Example: `/check 123`", parse_mode="Markdown")
-        return
-    
-    pokemon_id = context.args[0]
+async def check(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
 
-    # ✅ Validate ID (only allow numbers)
-    if not re.match(r"^\d+$", pokemon_id):
-        await update.message.reply_text("❌ Invalid ID! Use numbers only. Example: `/check 123`", parse_mode="Markdown")
+    # Check if the user has provided an ID to search for
+    if not context.args or len(context.args) != 1:
+        await update.message.reply_text("❌ Please provide a valid character ID to check.")
         return
 
-    # ✅ Fetch Pokémon from the database
-    pokemon = await collection.find_one({"id": pokemon_id})
+    character_id = context.args[0]
 
-    if not pokemon:
-        await update.message.reply_text("❌ No Pokémon found with this ID!", parse_mode="Markdown")
-        return
+    # Query the database for the character by ID
+    character = await db['anime_characters_lol'].find_one({"id": character_id})
 
-    # ✅ Extract Pokémon details
-    name = pokemon.get("name", "Unknown")
-    category = pokemon.get("category", "Unknown")
-    rarity = pokemon.get("rarity", "Unknown")
-    img_url = pokemon.get("img_url", None)
-
-    # ✅ Format the message
-    message = (
-        f"📜 **Pokémon Details**\n"
-        f"🆔 **ID:** `{pokemon_id}`\n"
-        f"🔹 **Name:** {name}\n"
-        f"🌟 **Category:** {category}\n"
-        f"🎖 **Rarity:** {rarity}\n"
-    )
-
-    # ✅ Include image if available
-    if img_url:
-        await update.message.reply_photo(photo=img_url, caption=message, parse_mode="Markdown")
+    if character:
+        # Format character details
+        character_info = (
+            f'🆔 <b>ID:</b> {character["id"]}\n'
+            f'🆔 <b>Name:</b> {character["name"]}\n'
+            f'🔹 <b>Category:</b> {character["category"]}\n'
+            f'🎖 <b>Rarity:</b> {character["rarity"]}\n'
+        )
+        
+        # Check if the img_url exists
+        img_url = character.get("img_url", None)
+        if img_url:
+            # Send the character image with its details as caption
+            await update.message.reply_photo(
+                photo=img_url,
+                caption=character_info,
+                parse_mode="HTML"
+            )
+        else:
+            # Send only text if no image is available
+            await update.message.reply_text(character_info, parse_mode="HTML")
     else:
-        await update.message.reply_text(message, parse_mode="Markdown")
+        await update.message.reply_text("❌ Character not found. Please check the ID and try again.")
 
-
-# ✅ Add the command handler to your bot
-application.add_handler(CommandHandler("check", check_pokemon, block=False))
+# Add handler for /check command
+application.add_handler(CommandHandler("check", check))
