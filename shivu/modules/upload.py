@@ -103,8 +103,8 @@ async def upload(update: Update, context: CallbackContext) -> None:
             "7": "7️⃣ Alola",
             "8": "8️⃣ Galar",
             "9": "9️⃣ Paldea",
-            "10": "🔟 Hisui",
-            "11": "🗿 Trainers",
+            "10":"🔟 Hisui",
+            "11":"🗿 Trainers",
               }
      
         category = category_map.get(category_input)
