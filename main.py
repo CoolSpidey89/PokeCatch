@@ -267,15 +267,3 @@ async def guess(update: Update, context: CallbackContext) -> None:
     else:
         await update.message.reply_text("❌ Incorrect character name. Try again!")
 
-from telegram.ext import Updater
-
-def main() -> None:
-    application = Updater("7602328361:AAGW6LvxM3Pp62HcAUIJULSrpK8dKXPTxio", use_context=True)
-    application.dispatcher.add_handler(CommandHandler("ping", ping))
-
-    logger.info("Bot is running...")
-    application.start_polling()
-
-if __name__ == "__main__":
-    main()
-
