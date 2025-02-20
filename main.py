@@ -28,9 +28,6 @@ def run_health_check():
 if __name__ == "__main__":
     # Start Flask health check in a separate thread
     threading.Thread(target=run_health_check, daemon=True).start()
-    
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000)
 
 
 locks = {}
