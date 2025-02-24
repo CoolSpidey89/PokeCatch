@@ -28,18 +28,19 @@ flask_app = Flask(__name__)
 def health():
     return "OK", 200
 
-# ✅ Function to start polling (in a separate thread)
-def start_polling():
+# ✅ Function to start bot polling properly
+async def start_polling():
     print("Starting bot polling...")
-    bot_app.run_polling(allowed_updates=Update.ALL_TYPES)
+    await bot_app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
-    # Start polling in a separate thread
-    threading.Thread(target=start_polling, daemon=True).start()
+    # Start Flask in a separate thread
+    threading.Thread(target=lambda: serve(flask_app, host="0.0.0.0", port=8000), daemon=True).start()
 
-    # Start Flask (this keeps running)
-    print("Starting Flask server on port 8000...")
-    serve(flask_app, host="0.0.0.0", port=8000)
+    # Start polling in the main thread using asyncio.run()
+    print("Starting bot polling...")
+    asyncio.run(start_polling())
+
 
 
 
