@@ -13,6 +13,9 @@ from shivu import collection, top_global_groups_collection, group_user_totals_co
 from shivu import application, SUPPORT_CHAT, UPDATE_CHAT, db, LOGGER
 from shivu.modules import ALL_MODULES
 
+import os
+TOKEN = "7602328361:AAGW6LvxM3Pp62HcAUIJULSrpK8dKXPTxio"
+
 from telegram.ext import ApplicationBuilder
 app = ApplicationBuilder().token(TOKEN).build()
 
