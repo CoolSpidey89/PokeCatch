@@ -272,11 +272,12 @@ async def guess(update: Update, context: CallbackContext) -> None:
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
 
-    if __name__ == "__main__":
-    print("Bot is running...")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
-
 
     else:
         await update.message.reply_text("❌ Incorrect character name. Try again!")
+
+if __name__ == "__main__":
+    print("Bot is running...")  # Indented correctly
+    app.run_polling(allowed_updates=Update.ALL_TYPES)  # Indented correctly
+
 
