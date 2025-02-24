@@ -4,42 +4,42 @@ import random
 import re
 import asyncio
 from html import escape
-
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram import Update
-from telegram.ext import CommandHandler, CallbackContext, MessageHandler, filters
-
-from shivu import collection, top_global_groups_collection, group_user_totals_collection, user_collection, user_totals_collection, shivuu
-from shivu import application, SUPPORT_CHAT, UPDATE_CHAT, db, LOGGER
-from shivu.modules import ALL_MODULES
-
 import os
-TOKEN = "7602328361:AAGW6LvxM3Pp62HcAUIJULSrpK8dKXPTxio"
-
-from telegram.ext import ApplicationBuilder
-app = ApplicationBuilder().token(TOKEN).build()
-
 import threading
-from waitress import serve
+import requests
+
 from flask import Flask
+from waitress import serve
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import (
+    ApplicationBuilder, CommandHandler, CallbackContext, MessageHandler, filters
+)
 
-app = Flask(__name__)  # Your main Flask app
+# ✅ Load the bot token from environment variable
+TOKEN = os.getenv("BOT_TOKEN", "7602328361:AAGW6LvxM3Pp62HcAUIJULSrpK8dKXPTxio")
 
-def run_health_check():
-    health_app = Flask(__name__)  # Separate health check app
+# ✅ Initialize Telegram bot
+bot_app = ApplicationBuilder().token(TOKEN).build()
 
-    @health_app.route("/health")
-    def health():
-        return "OK", 200
+# ✅ Flask app for health check
+flask_app = Flask(__name__)
 
-    health_app.run(host="0.0.0.0", port=5001, debug=False)  # Run health check on port 5001
+@flask_app.route("/health")
+def health():
+    return "OK", 200
+
+# ✅ Function to start polling (in a separate thread)
+def start_polling():
+    print("Starting bot polling...")
+    bot_app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 if __name__ == "__main__":
-    # Start health check in a separate thread
-    threading.Thread(target=run_health_check, daemon=True).start()
-    
-    # Start the main Flask app
-    serve(app, host="0.0.0.0", port=8000)
+    # Start polling in a separate thread
+    threading.Thread(target=start_polling, daemon=True).start()
+
+    # Start Flask (this keeps running)
+    print("Starting Flask server on port 8000...")
+    serve(flask_app, host="0.0.0.0", port=8000)
 
 
 
