@@ -4,8 +4,6 @@ import random
 import re
 import asyncio
 from html import escape
-from flask import Flask
-import threading
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import Update
@@ -16,18 +14,28 @@ from shivu import application, SUPPORT_CHAT, UPDATE_CHAT, db, LOGGER
 from shivu.modules import ALL_MODULES
 
 
-app = Flask(__name__)
+import threading
+from waitress import serve
+from flask import Flask
 
-@app.route('/')
-def health_check():
-    return "OK", 200
+app = Flask(__name__)  # Your main Flask app
 
 def run_health_check():
-    app.run(host="0.0.0.0", port=8000, debug=False, use_reloader=False)
+    health_app = Flask(__name__)  # Separate health check app
+
+    @health_app.route("/health")
+    def health():
+        return "OK", 200
+
+    health_app.run(host="0.0.0.0", port=5001, debug=False)  # Run health check on port 5001
 
 if __name__ == "__main__":
-    # Start Flask health check in a separate thread
+    # Start health check in a separate thread
     threading.Thread(target=run_health_check, daemon=True).start()
+    
+    # Start the main Flask app
+    serve(app, host="0.0.0.0", port=8000)
+
 
 
 locks = {}
