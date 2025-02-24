@@ -13,7 +13,8 @@ from shivu import collection, top_global_groups_collection, group_user_totals_co
 from shivu import application, SUPPORT_CHAT, UPDATE_CHAT, db, LOGGER
 from shivu.modules import ALL_MODULES
 
-app = Application.builder().token(TOKEN).build()
+from telegram.ext import ApplicationBuilder
+app = ApplicationBuilder().token(TOKEN).build()
 
 import threading
 from waitress import serve
