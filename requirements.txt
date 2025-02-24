@@ -11,3 +11,4 @@ cachetools
 Flask
 pyrogram
 gunicorn
+waitress
