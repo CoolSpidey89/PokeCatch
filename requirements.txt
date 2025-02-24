@@ -10,3 +10,4 @@ python-dotenv
 cachetools 
 Flask
 pyrogram
+gunicorn
